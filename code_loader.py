@@ -1,53 +1,100 @@
 import os
+from pathlib import Path
+
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-def load_python_files(repo_path):
-    documents = []
 
-    IGNORE_DIRS = {
+IGNORE_DIRS = {
     ".git",
     ".github",
     "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
     "docs",
     "tests",
     "examples",
-    "requirements"
+    "requirements",
+    "venv",
+    ".venv",
+    "node_modules",
 }
 
-    for root, dirs, files in os.walk(repo_path):
+SOURCE_SUFFIXES = {
+    ".c",
+    ".cc",
+    ".cpp",
+    ".cs",
+    ".go",
+    ".h",
+    ".hpp",
+    ".java",
+    ".kt",
+    ".py",
+    ".md",
+    ".php",
+    ".rb",
+    ".rst",
+    ".rs",
+    ".scala",
+    ".swift",
+    ".js",
+    ".ts",
+    ".tsx",
+    ".jsx",
+    ".txt",
+    ".toml",
+    ".yaml",
+    ".yml",
+}
 
-        dirs[:] = [
-            d for d in dirs
-            if d not in IGNORE_DIRS
-        ]
 
-        for file in files:
-            if file.endswith(".py"):
-                path = os.path.join(root, file)
+def load_source_files(repo_path):
+    documents = []
+    repo_root = Path(repo_path).resolve()
 
-                try:
-                    with open(path,
-                              "r",
-                              encoding="utf-8",
-                              errors="ignore") as f:
+    for root, dirs, files in os.walk(repo_root):
+        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
 
-                        content = f.read()
+        for filename in files:
+            path = Path(root) / filename
 
-                    documents.append({
-                        "path": path,
-                        "content": content
-                    })
+            if path.suffix.lower() not in SOURCE_SUFFIXES:
+                continue
 
-                except Exception as e:
-                    print("读取失败：", path)
+            try:
+                content = path.read_text(encoding="utf-8", errors="ignore")
+            except Exception as exc:
+                print(f"读取失败: {path} ({exc})")
+                continue
+
+            if not content.strip():
+                continue
+
+            documents.append(
+                {
+                    "path": str(path),
+                    "relative_path": str(path.relative_to(repo_root)),
+                    "content": content,
+                }
+            )
 
     return documents
 
-def split_documents(documents):
 
+def load_python_files(repo_path):
+    return [
+        doc
+        for doc in load_source_files(repo_path)
+        if Path(doc["path"]).suffix.lower() == ".py"
+    ]
+
+
+def split_documents(documents, chunk_size=1000, chunk_overlap=200):
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=200
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+        separators=["\nclass ", "\ndef ", "\n## ", "\n### ", "\n", " ", ""],
     )
 
     chunks = []
@@ -55,32 +102,26 @@ def split_documents(documents):
     for doc in documents:
         parts = splitter.split_text(doc["content"])
 
-        for part in parts:
-            chunks.append({
-                "path": doc["path"],
-                "content": part
-            })
+        for index, part in enumerate(parts):
+            chunks.append(
+                {
+                    "path": doc["path"],
+                    "relative_path": doc.get("relative_path", doc["path"]),
+                    "chunk_id": index,
+                    "content": part,
+                }
+            )
 
     return chunks
 
+
 if __name__ == "__main__":
-    docs = load_python_files("repos/flask")
-
-    print("Python文件数：", len(docs))
-
-    print(docs[0]["path"])
-
-    print(docs[0]["content"][:300])
-
+    docs = load_source_files("repos/flask")
     chunks = split_documents(docs)
 
-    print("代码块数量：", len(chunks))
+    print("源码文件数量:", len(docs))
+    print("代码块数量:", len(chunks))
 
-    print(chunks[0]["path"])
-
-    print(chunks[0]["content"][:300])
-
-    print("\n前5个文件：")
-
-    for doc in docs[:5]:
-        print(doc["path"])
+    if chunks:
+        print(chunks[0]["relative_path"])
+        print(chunks[0]["content"][:300])
