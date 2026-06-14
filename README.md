@@ -168,6 +168,34 @@ pytest
 
 测试会检查核心 API 是否可用，并验证 Flask 示例问题能检索到关键源码文件。
 
+## 检索评测
+
+项目提供了 `eval_cases.json` 作为轻量评测集，用于验证固定问题能否召回期望的源码文件。
+
+运行：
+
+```powershell
+python evaluate_retrieval.py
+```
+
+输出 JSON：
+
+```powershell
+python evaluate_retrieval.py --json
+```
+
+设置最低通过阈值：
+
+```powershell
+python evaluate_retrieval.py --fail-under 0.8
+```
+
+评测指标包括：
+
+- `macro_recall`：每个问题召回率的平均值
+- `micro_recall`：所有期望文件整体命中率
+- `missed_paths`：未命中的期望源码文件
+
 ## 当前限制
 
 - 回答质量依赖索引覆盖范围和问题是否具体。

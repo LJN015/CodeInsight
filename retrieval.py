@@ -99,6 +99,34 @@ QUERY_EXPANSIONS = {
     "\u65e5\u5fd7": ["logger", "logging", "log"],
     "\u4e2d\u95f4\u4ef6": ["middleware", "interceptor", "filter"],
     "\u5165\u53e3": ["main", "entry", "bootstrap", "startup", "application"],
+    "\u6a21\u677f": [
+        "template",
+        "templating",
+        "render_template",
+        "render_template_string",
+        "jinja",
+        "context_processor",
+    ],
+    "\u6e32\u67d3": ["render", "render_template", "templating", "jinja"],
+    "\u4e0a\u4e0b\u6587\u5904\u7406\u5668": ["context_processor", "template_context_processors"],
+    "\u6587\u4ef6\u54cd\u5e94": ["send_file", "send_from_directory", "safe_join"],
+    "\u6587\u4ef6\u4e0b\u8f7d": ["send_file", "send_from_directory"],
+    "\u54cd\u5e94": ["response", "Response", "make_response", "process_response"],
+    "\u4fe1\u53f7": [
+        "signals",
+        "signal",
+        "request_started",
+        "request_finished",
+        "template_rendered",
+        "got_request_exception",
+    ],
+    "\u65e5\u5fd7": ["logger", "logging", "log"],
+    "\u5168\u5c40\u4ee3\u7406": ["current_app", "request", "session", "LocalProxy"],
+    "\u6d41\u5f0f": ["stream_with_context", "stream", "generator"],
+    "\u8c03\u8bd5": ["debug", "debughelpers", "explain_template_loading_attempts"],
+    "\u7c7b\u89c6\u56fe": ["View", "MethodView", "as_view", "dispatch_request"],
+    "JSON": ["json", "JSONProvider", "DefaultJSONProvider", "TaggedJSONSerializer"],
+    "session": ["session", "SecureCookieSessionInterface", "SessionInterface"],
 }
 
 FILENAME_HINTS = {
@@ -113,6 +141,22 @@ FILENAME_HINTS = {
     "middleware": ["middleware", "interceptor", "filter"],
     "logging": ["log", "logger", "logging"],
     "main": ["main", "entry", "bootstrap", "startup", "application"],
+    "templating": ["template", "render_template", "jinja", "context_processor"],
+    "helpers": [
+        "helper",
+        "send_file",
+        "send_from_directory",
+        "stream_with_context",
+        "flash",
+        "url_for",
+    ],
+    "signals": ["signal", "signals", "request_started", "template_rendered"],
+    "debughelpers": ["debug", "debughelpers", "explain"],
+    "wrappers": ["request", "response", "wrapper", "Response"],
+    "views": ["view", "MethodView", "as_view", "dispatch_request"],
+    "globals": ["current_app", "localproxy"],
+    "json": ["json", "jsonprovider", "defaultjsonprovider", "taggedjsonserializer"],
+    "sessions": ["session", "securecookiesessioninterface", "sessioninterface"],
 }
 
 
@@ -138,6 +182,27 @@ def expand_query(query: str):
 
     if "dispatch" in lowered_query:
         terms.extend(QUERY_EXPANSIONS["\u5206\u53d1"])
+
+    if "render_template" in lowered_query or "template" in lowered_query:
+        terms.extend(QUERY_EXPANSIONS["\u6a21\u677f"])
+
+    if "send_file" in lowered_query or "send_from_directory" in lowered_query:
+        terms.extend(QUERY_EXPANSIONS["\u6587\u4ef6\u54cd\u5e94"])
+
+    if "make_response" in lowered_query or "response" in lowered_query:
+        terms.extend(QUERY_EXPANSIONS["\u54cd\u5e94"])
+
+    if "signal" in lowered_query:
+        terms.extend(QUERY_EXPANSIONS["\u4fe1\u53f7"])
+
+    if "stream_with_context" in lowered_query:
+        terms.extend(QUERY_EXPANSIONS["\u6d41\u5f0f"])
+
+    if "json" in lowered_query:
+        terms.extend(QUERY_EXPANSIONS["JSON"])
+
+    if "session" in lowered_query:
+        terms.extend(QUERY_EXPANSIONS["session"])
 
     for hint_terms in FILENAME_HINTS.values():
         if any(term in lowered_query for term in hint_terms):
@@ -252,6 +317,84 @@ def keyword_score(chunk, terms):
             "from_mapping",
         }
     )
+    template_related = bool(
+        terms
+        & {
+            "template",
+            "templating",
+            "render_template",
+            "render_template_string",
+            "jinja",
+            "context_processor",
+            "template_context_processors",
+        }
+    )
+    helper_related = bool(
+        terms
+        & {
+            "send_file",
+            "send_from_directory",
+            "safe_join",
+            "stream_with_context",
+            "helper",
+            "flash",
+            "url_for",
+        }
+    )
+    response_related = bool(
+        terms
+        & {
+            "response",
+            "make_response",
+            "process_response",
+            "wrapper",
+        }
+    )
+    signal_related = bool(
+        terms
+        & {
+            "signals",
+            "signal",
+            "request_started",
+            "request_finished",
+            "template_rendered",
+            "got_request_exception",
+        }
+    )
+    debug_related = bool(
+        terms
+        & {
+            "debug",
+            "debughelpers",
+            "explain_template_loading_attempts",
+        }
+    )
+    globals_related = bool(
+        terms
+        & {
+            "current_app",
+            "localproxy",
+            "global",
+            "globals",
+        }
+    )
+    json_related = bool(
+        terms
+        & {
+            "json",
+            "jsonprovider",
+            "defaultjsonprovider",
+            "taggedjsonserializer",
+        }
+    )
+    session_related = bool(
+        terms
+        & {
+            "session",
+            "securecookiesessioninterface",
+            "sessioninterface",
+        }
+    )
 
     for term in terms:
         term_count = content.count(term)
@@ -316,6 +459,12 @@ def keyword_score(chunk, terms):
     if test_related and "environbuilder" in content:
         score += 1.0
 
+    if test_related and session_related and path.endswith("testing.py"):
+        score += 2.5
+
+    if test_related and session_related and "session_transaction" in content:
+        score += 2.0
+
     if dispatch_related and path.endswith("app.py"):
         score += 0.8
 
@@ -361,6 +510,95 @@ def keyword_score(chunk, terms):
         or "class config" in content
     ):
         score += 1.5
+
+    if template_related and path.endswith("templating.py"):
+        score += 2.0
+
+    if template_related and (
+        "def render_template" in content
+        or "def render_template_string" in content
+        or "def _render" in content
+        or "context_processor" in content
+        or "template_context_processors" in content
+    ):
+        score += 1.8
+
+    if helper_related and path.endswith("helpers.py"):
+        score += 2.0
+
+    if helper_related and (
+        "def send_file" in content
+        or "def send_from_directory" in content
+        or "def stream_with_context" in content
+        or "def flash" in content
+        or "def url_for" in content
+    ):
+        score += 1.8
+
+    if response_related and (path.endswith("app.py") or path.endswith("wrappers.py")):
+        score += 1.2
+
+    if response_related and (
+        "def make_response" in content
+        or "def finalize_request" in content
+        or "def process_response" in content
+        or "class response" in content
+    ):
+        score += 1.8
+
+    if signal_related and path.endswith("signals.py"):
+        score += 2.5
+
+    if signal_related and (
+        "request_started" in content
+        or "request_finished" in content
+        or "template_rendered" in content
+        or "got_request_exception" in content
+    ):
+        score += 1.8
+
+    if debug_related and path.endswith("debughelpers.py"):
+        score += 2.5
+
+    if debug_related and (
+        "debughelpers" in content
+        or "explain_template_loading_attempts" in content
+        or "unexpected_unicode_error" in content
+    ):
+        score += 1.5
+
+    if globals_related and path.endswith("globals.py"):
+        score += 3.0
+
+    if globals_related and (
+        "current_app" in content
+        or "localproxy" in content
+    ):
+        score += 1.8
+
+    if json_related and "json/" in path:
+        score += 2.2
+
+    if json_related and (
+        "class jsonprovider" in content
+        or "class defaultjsonprovider" in content
+        or "class taggedjsonserializer" in content
+        or "def dumps" in content
+        or "def loads" in content
+        or "def response" in content
+    ):
+        score += 1.8
+
+    if session_related and path.endswith("sessions.py"):
+        score += 2.2
+
+    if session_related and (
+        "class sessioninterface" in content
+        or "class securecookiesessioninterface" in content
+        or "def open_session" in content
+        or "def save_session" in content
+    ):
+        score += 1.8
 
     return score
 

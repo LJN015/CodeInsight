@@ -1,0 +1,256 @@
+{
+  "repo_name": "flask",
+  "description": "Retrieval evaluation cases for the Flask demo repository.",
+  "cases": [
+    {
+      "id": "flask_route_registration",
+      "question": "Flask 是如何把 @app.route 注册成 URL 规则的？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/sansio/scaffold.py",
+        "src/flask/sansio/app.py"
+      ]
+    },
+    {
+      "id": "flask_add_url_rule_storage",
+      "question": "Flask add_url_rule 注册路由时把 Rule 和视图函数分别保存在哪里？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/sansio/app.py"
+      ]
+    },
+    {
+      "id": "flask_blueprint_registration",
+      "question": "Flask Blueprint 是如何注册到应用并添加 URL 前缀的？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/sansio/blueprints.py",
+        "src/flask/sansio/app.py"
+      ]
+    },
+    {
+      "id": "flask_request_dispatch",
+      "question": "Flask 请求从 wsgi_app 到 dispatch_request 的分发流程是什么？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/app.py"
+      ]
+    },
+    {
+      "id": "flask_full_dispatch_request",
+      "question": "Flask full_dispatch_request 做了哪些请求预处理、分发和异常处理？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/app.py"
+      ]
+    },
+    {
+      "id": "flask_app_context_lifecycle",
+      "question": "Flask 应用上下文 AppContext 是如何 push 和 pop 的？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/ctx.py"
+      ]
+    },
+    {
+      "id": "flask_request_context_lifecycle",
+      "question": "Flask 请求上下文 RequestContext 在哪里创建、匹配 URL 并释放？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/ctx.py",
+        "src/flask/app.py"
+      ]
+    },
+    {
+      "id": "flask_config_loading",
+      "question": "Flask 配置对象如何从文件、环境变量或对象中加载配置？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/config.py"
+      ]
+    },
+    {
+      "id": "flask_config_prefixed_env",
+      "question": "Flask Config 如何通过 from_prefixed_env 读取带前缀的环境变量？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/config.py"
+      ]
+    },
+    {
+      "id": "flask_cli_load_app",
+      "question": "Flask CLI 是如何定位并加载应用实例的？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/cli.py"
+      ]
+    },
+    {
+      "id": "flask_cli_group",
+      "question": "FlaskGroup 和 ScriptInfo 在命令行启动中分别承担什么职责？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/cli.py"
+      ]
+    },
+    {
+      "id": "flask_test_client_environ",
+      "question": "Flask 测试客户端如何构造 environ 并模拟 HTTP 请求？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/testing.py"
+      ]
+    },
+    {
+      "id": "flask_test_client_session",
+      "question": "Flask 测试客户端如何打开 session_transaction 修改测试 session？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/testing.py",
+        "src/flask/sessions.py"
+      ]
+    },
+    {
+      "id": "flask_error_handler",
+      "question": "Flask 的错误处理器是如何注册和查找的？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/sansio/scaffold.py",
+        "src/flask/sansio/app.py"
+      ]
+    },
+    {
+      "id": "flask_handle_exception",
+      "question": "Flask 如何处理普通异常和 HTTPException？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/app.py",
+        "src/flask/sansio/app.py"
+      ]
+    },
+    {
+      "id": "flask_session_interface",
+      "question": "Flask session 是如何打开、保存以及通过 SecureCookieSessionInterface 实现的？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/sessions.py"
+      ]
+    },
+    {
+      "id": "flask_json_provider",
+      "question": "Flask JSONProvider 和 DefaultJSONProvider 如何实现 dumps、loads 和 response？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/json/provider.py"
+      ]
+    },
+    {
+      "id": "flask_json_tagging",
+      "question": "Flask TaggedJSONSerializer 如何给特殊 Python 类型打 JSON 标签？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/json/tag.py"
+      ]
+    },
+    {
+      "id": "flask_template_rendering",
+      "question": "Flask render_template 如何查找模板并渲染上下文？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/templating.py"
+      ]
+    },
+    {
+      "id": "flask_template_context_processors",
+      "question": "Flask 模板上下文处理器 context_processor 是如何注册和更新上下文的？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/sansio/scaffold.py",
+        "src/flask/templating.py"
+      ]
+    },
+    {
+      "id": "flask_send_file_helpers",
+      "question": "Flask send_file 和 send_from_directory 这些 helper 如何返回文件响应？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/helpers.py"
+      ]
+    },
+    {
+      "id": "flask_response_conversion",
+      "question": "Flask make_response 如何把视图返回值转换成 Response 对象？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/app.py",
+        "src/flask/wrappers.py"
+      ]
+    },
+    {
+      "id": "flask_request_response_wrappers",
+      "question": "Flask 的 Request 和 Response 包装类在 wrappers.py 中扩展了哪些能力？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/wrappers.py"
+      ]
+    },
+    {
+      "id": "flask_signals",
+      "question": "Flask 定义了哪些 signals，它们用于请求、模板和异常生命周期的哪些阶段？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/signals.py",
+        "src/flask/app.py",
+        "src/flask/templating.py"
+      ]
+    },
+    {
+      "id": "flask_logging",
+      "question": "Flask 默认 logger 是如何创建和配置的？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/logging.py"
+      ]
+    },
+    {
+      "id": "flask_class_based_views",
+      "question": "Flask 类视图 View 和 MethodView 是如何转换成视图函数的？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/views.py"
+      ]
+    },
+    {
+      "id": "flask_globals_proxies",
+      "question": "Flask current_app、request、session、g 这些全局代理是如何定义的？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/globals.py"
+      ]
+    },
+    {
+      "id": "flask_stream_with_context",
+      "question": "Flask stream_with_context 如何在流式响应中保留请求上下文？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/helpers.py"
+      ]
+    },
+    {
+      "id": "flask_after_this_request",
+      "question": "Flask after_this_request 如何把回调注册到当前请求上下文中？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/ctx.py"
+      ]
+    },
+    {
+      "id": "flask_debug_helpers",
+      "question": "Flask debughelpers 如何在调试模式下提示常见错误？",
+      "top_k": 8,
+      "expected_paths": [
+        "src/flask/debughelpers.py"
+      ]
+    }
+  ]
+}
